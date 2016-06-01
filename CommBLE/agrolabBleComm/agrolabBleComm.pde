@@ -18,9 +18,9 @@ char MAC_SENSOR1_HUM[14] 			= "b0b448c9b385";
 char MAC_SENSOR2_LUMTEMP[14]	= "b0b448c9ba01";
 
 // Datas variables
-uint16_t temperature_value = 0;
-uint16_t humidity_value = 0;
-uint16_t luminosity_value = 0;
+float temperature_value = 0.0;
+float humidity_value = 0.0;
+float luminosity_value = 0.0;
 
 uint8_t return_code = 0;
 
@@ -40,6 +40,8 @@ uint8_t setNotificationHumTemp(uint8_t status);
 
 uint8_t getLuminosity();
 uint8_t getTemperatureAndHumidity();
+void sensorHdc1000Convert(uint16_t rawTemp, uint16_t rawHum, float *temp, float *hum);
+float sensorOpt3001Convert(uint16_t rawData);
 
 // Programm entry
 void setup() 
@@ -56,26 +58,16 @@ void loop()
 	{
 		configureLuminositySensor();
 		delay(1000);
-		for(int i = 0; i<10; i++)
-		{
-			getLuminosity();
-			delay(1000);
-		}
+		getLuminosity();
 		setMeasurementLuminosity(DISABLE);
 		BLE.disconnect(BLE.connection_handle);
 	}
-	
-	delay(2000);
 	
 	if (findAndConnectSensor2() == 0)
 	{
 		configureHumTempSensor();
 		delay(1000);
-		for(int i = 0; i<10; i++)
-		{
-			getTemperatureAndHumidity();
-			delay(1000);
-		}
+		getTemperatureAndHumidity();
 		setMeasurementHumTemp(DISABLE);
 		BLE.disconnect(BLE.connection_handle);
 	}
@@ -201,31 +193,8 @@ uint8_t setNotificationHumTemp(uint8_t status)
 }
 uint8_t getLuminosity()
 {
-	/*if (setNotificationLuminosity(ENABLE) != 0)
-		return 1;
+	uint16_t rawLum = 0;
 	
-	return_code = BLE.waitEvent(10000);
-	if(return_code == BLE_EVENT_ATTCLIENT_ATTRIBUTE_VALUE)
-	{
-		USB.print(F("Attribute Value: "));
-		USB.printHex(BLE.event[3]);    
-		USB.printHex(BLE.event[2]);
-		USB.printHex(BLE.event[1]);
-		USB.printHex(BLE.event[0]);
-		USB.println();
-		
-		//Save data values	
-		luminosity_value = (uint16_t)(BLE.event[3] << 8) + (uint16_t)BLE.event[2];
-		USB.print("Lum: ");
-		USB.println(luminosity_value);
-		
-		if (setNotificationLuminosity(DISABLE) != 0)
-			return 1;
-		return 0;
-	}
-	USB.println(F("Can't read Luminosity measure"));
-	return 1;
-	*/
 	BLE.attributeRead(BLE.connection_handle, LUMINOSITY_DATA_CHAR); 
 
 	//Save data values
@@ -236,44 +205,30 @@ uint8_t getLuminosity()
 	USB.printHex(BLE.attributeValue[0]);
 	USB.println();	
 		
-	temperature_value = (uint16_t)(BLE.attributeValue[2] << 8) + (uint16_t)BLE.attributeValue[3];
-	luminosity_value = (uint16_t)(BLE.attributeValue[0] << 8) + (uint16_t)BLE.attributeValue[1];
+	rawLum = (uint16_t)(BLE.attributeValue[3] << 8) + (uint16_t)BLE.attributeValue[2];
+	USB.printHex(rawLum);    
+	luminosity_value = sensorOpt3001Convert(rawLum);
 	USB.print("Lum: ");
 	USB.println(luminosity_value);
-	USB.print("temp: ");
-	USB.println(temperature_value);
 
 	return 0;
 }
-uint8_t getTemperatureAndHumidity()
-{
-	/*if (setNotificationHumTemp(ENABLE) != 0)
-		return 1;
-	
-	return_code = BLE.waitEvent(10000);
-	if(return_code == BLE_EVENT_ATTCLIENT_ATTRIBUTE_VALUE)
-	{
-		USB.print(F("Attribute Value: "));
-		USB.printHex(BLE.event[0]);    
-		USB.printHex(BLE.event[1]);
-		USB.printHex(BLE.event[2]);
-		USB.printHex(BLE.event[3]);
-		USB.println();		
-		
-		//Save data values
-		temperature_value = (uint16_t)(BLE.event[1] << 8) + (uint16_t)BLE.event[0];
-		humidity_value = (uint16_t)(BLE.event[3] << 8) + (uint16_t)BLE.event[2];
-		USB.print("hum: ");
-		USB.println(humidity_value);
-		USB.print("temp: ");
-		USB.println(temperature_value);
 
-		if (setNotificationHumTemp(DISABLE) != 0)
-			return 1;
-		return 0;
-	}
-	USB.println(F("Can't read Humidity/Temperature measure"));
-	return 1;*/
+float sensorOpt3001Convert(uint16_t rawData)
+{
+  uint16_t e, m;
+ 
+  m = rawData & 0x0FFF;
+  e = (rawData & 0xF000) >> 12;
+ 
+  return m * (0.01 * pow(2.0,e));
+}
+
+uint8_t getTemperatureAndHumidity()
+{	
+	uint16_t rawTemp = 0;
+	uint16_t rawHum = 0;
+	
 	BLE.attributeRead(BLE.connection_handle, HUMTEMP_DATA_CHAR); 
 
 	//Save data values
@@ -284,8 +239,11 @@ uint8_t getTemperatureAndHumidity()
 	USB.printHex(BLE.attributeValue[0]);
 	USB.println();	
 		
-	temperature_value = (uint16_t)(BLE.attributeValue[2] << 8) + (uint16_t)BLE.attributeValue[3];
-	humidity_value = (uint16_t)(BLE.attributeValue[0] << 8) + (uint16_t)BLE.attributeValue[1];
+	rawTemp = (uint16_t)(BLE.attributeValue[1] << 8) + (uint16_t)BLE.attributeValue[0];
+	rawHum = (uint16_t)(BLE.attributeValue[3] << 8) + (uint16_t)BLE.attributeValue[2];
+	USB.printHex(rawTemp);    
+	USB.printHex(rawHum);
+	sensorHdc1000Convert(rawTemp,rawHum,&temperature_value,&humidity_value);
 	USB.print("hum: ");
 	USB.println(humidity_value);
 	USB.print("temp: ");
@@ -301,6 +259,15 @@ uint8_t getTemperatureAndHumidity()
 	USB.println();
 }
 
+void sensorHdc1000Convert(uint16_t rawTemp, uint16_t rawHum,
+                        float *temp, float *hum)
+{
+  //-- calculate temperature [°C]
+  *temp = ((double)(int16_t)rawTemp / 65536)*165 - 40;
+ 
+  //-- calculate relative humidity [%RH]
+  *hum = ((double)rawHum / 65536)*100;
+}
 
 
 
