@@ -108,9 +108,9 @@ void setup()
 	
 	do{
 		error = LoRaWAN.joinOTAA();
-        switch (error) {
-	        case 8: USB.println("JOINTOTAA: version error"); 			break;
-	        case 7: USB.println("JOINTOTAA: input error"); 				break;
+		switch (error) {
+			case 8: USB.println("JOINTOTAA: version error"); 			break;
+			case 7: USB.println("JOINTOTAA: input error"); 				break;
 			case 6: USB.println("JOINTOTAA: not joined"); 				break;
 			case 5: USB.println("JOINTOTAA: Sending error"); 			break;
 			case 4: USB.println("JOINTOTAA: Error with data length"); 	break;
@@ -156,7 +156,7 @@ void loop()
 	{
 		//wait 10secondes and retry the entire process
 		USB.println("ERROR in data transmission to LoRa");
-		delay(10000);
+		delay(5000);
 	}
 	// If data has been correctely transmitted, wait 5minutes
 	else
@@ -399,10 +399,15 @@ void checkCollectedDataForAlaram()
 uint8_t transmitCollectedDatasToLoRaWan()
 {
 	char msg[60];
-	char msg_ascii[60];
+	char msg_ascii[120];
 	uint8_t error;
-	sprintf(msg, "temp %d hum %d lum %d irr %d ", temperature_value,humidity_value,luminosity_value,irrigation_alarm_value);
+	
+	sprintf(msg, "{\"temp\":\"%d\",\"hum\":\"%d\",\"lum\":\"%d\",\"irr\":\"%d\"}", temperature_value,humidity_value,luminosity_value,irrigation_alarm_value);
 	string_to_hex(msg,msg_ascii);
+	
+	/*USB.println(msg);
+	USB.println(msg_ascii);*/
+	
 	error = LoRaWAN.sendUnconfirmed(PORT, msg_ascii);
 	if (error == 0)
 	{
@@ -429,17 +434,16 @@ void checkLoRaWanSendingErrors(uint8_t error)
 	USB.println();
 }
 
+//Convert string to hex ASCII
 void string_to_hex(char * str, char * ascii)
 {
 		uint8_t j = 0;
-    static const char* const lut = "0123456789ABCDEF";
     size_t len = strlen(str);
 		
     for (size_t i = 0; i < len; ++i)
     {
-        const unsigned char c = str[i];
-        ascii[j] = lut[c >> 4];
-        ascii[j+1] = lut[c & 15];
-				j+=2;
+				const unsigned char c = str[i];
+        sprintf(&ascii[j], "%x", c);
+        j+=2;
     }
 }

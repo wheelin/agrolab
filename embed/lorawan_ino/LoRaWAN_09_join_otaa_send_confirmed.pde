@@ -94,20 +94,7 @@ void loop()
 	delay(10000);
 }
 
-void str_to_ascii_code2(char * str, char * ascii)
-{
-    uint8_t i;
-    i = 0;
-    while(*str)
-    {
-        sprintf(&ascii[i], "%d", (uint8_t)(*(str)));
-        if((uint8_t)(*str) > 99)
-            i += 3;
-        else
-            i += 2;
-        str++;
-    }
-}
+
 
 uint8_t sendTemp(uint16_t val)
 {
@@ -135,6 +122,21 @@ uint8_t sendAlarm(bool irr)
 	char msg[10];
 
 	return LoRaWAN.sendConfirmed(PORT, msg);
+}
+
+void str_to_ascii_code2(char * str, char * ascii)
+{
+    uint8_t i;
+    i = 0;
+    while(*str)
+    {
+        sprintf(&ascii[i], "%d", (uint8_t)(*(str)));
+        if((uint8_t)(*str) > 99)
+            i += 3;
+        else
+            i += 2;
+        str++;
+    }
 }
 
 uint8_t str_to_ascii_code(char * str, char * ascii)

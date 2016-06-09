@@ -1,7 +1,7 @@
 \newpage
 \section{Communication Bluetooth}
 \subsection{Matériel à disposition}
-Pour ce projet, nous avons pu avoir deux boîtes complètes à disposition. Voici quelques caractéristiques qui sont propres à ce matériel et utilisées dans ce projet.
+Pour ce projet, nous avons pu avoir deux boîtes complètes à disposition. Voici quelques caractéristiques de ce matériel:
 \begin{itemize}
 	\item SensorTag 1:
 	\begin{itemize}
@@ -20,3 +20,16 @@ Pour ce projet, nous avons pu avoir deux boîtes complètes à disposition. Voic
 		\item Numéro du socket: 1
 	\end{itemize}
 \end{itemize}
+\subsection{Séquence d'acquisition des données}
+Nous avons décidé de collecter les données selon les étapes suivantes dans la boucle principale:
+\begin{enumerate}
+\item Au lancement de l'application, le module Bluetooth est connecté au socket 0 une seule fois dans la méthode setup.
+\item L'application commence par tenter la connexion avec le capteur 1. Si la connexion échoue, l'application passe à la connexion avec le capteur 2 (étape 5).
+\item Sinon, une fois le capteur connecté, la période d'acquisition du capteur de luminosité est configurée à 100ms et la mesure est activé. 
+\item On attend ensuite 1 seconde, le temps que le capteur fasse quelques mesures. 
+\item On va ensuite lire la valeur de la caractéristique et convertir les données. La mesure sur le capteur est ensuite désactivée et l'on se déconnecte du capteur.
+\item Les étapes 2 à 5 sont ensuite répétées mais avec le capteur 2 pour récupérer l'humidité et la température.
+\end{enumerate}
+Toutes les données sont stockées dans des variables globales. Si la connexion avec un des capteurs échoue, ce sont les valeurs précédentes du capteur qui sont envoyée au réseau LoRaWan. L'irrigation d'un champ n'a pas besoin de se faire à la minute près, le fait qu'une des données n'est pas mise à jour pour 5 minutes n'est donc pas dramatique. C'est également pour cela que nous n'avons pas choisi d'utiliser la notification pour recevoir les données des capteurs. L'acquisition des valeurs toutes les 5 minutes est suffisante.\\\\
+Les capteurs sont désactivés pour ne plus faire de mesure 
+\subsection{Seuils de génération d'alarme}
