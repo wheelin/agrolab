@@ -162,7 +162,7 @@ void loop()
 	else
 	{
 		//Maintain sensor awake and wait 5minutes
-		for(int i=0;i<5;i++)
+		for(int i=0;i<1;i++)
 		{
 			//Try to connect sensor1
 			if (findAndConnectSensor1() == 0)
