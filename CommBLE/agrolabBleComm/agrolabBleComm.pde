@@ -22,6 +22,7 @@ uint16_t humidity_value = 0;
 uint16_t luminosity_value = 0;
 uint8_t irrigation_alarm_value = 0;
 
+//LoRaWAN variables
 char DEVICE_EUI[]  = "1112131415161718";
 char APP_EUI[] = "0102030405060708";
 char APP_KEY[] = "01020304050607080910111213141516";
@@ -46,12 +47,7 @@ float sensorHdc1000ConvertTemperature(uint16_t rawTemp);
 float sensorHdc1000ConvertHumidity(uint16_t rawHum);
 float sensorOpt3001Convert(uint16_t rawData);
 void checkCollectedDataForAlaram();
-
 uint8_t transmitCollectedDatasToLoRaWan();
-uint8_t sendTemp(uint16_t val);
-uint8_t sendHum(uint16_t val);
-uint8_t sendLum(uint16_t val);
-uint8_t sendAlarm(bool irr);
 
 uint8_t str_to_ascii_code(char * str, char * ascii);
 
@@ -162,7 +158,7 @@ void loop()
 	else
 	{
 		//Maintain sensor awake and wait 5minutes
-		for(int i=0;i<1;i++)
+		for(int i=0;i<5;i++)
 		{
 			//Try to connect sensor1
 			if (findAndConnectSensor1() == 0)
@@ -178,14 +174,14 @@ void loop()
 			if (findAndConnectSensor2() == 0)
 			{
 				delay(1000);
-				BLE.disconnect(BLE.connection_handle);	
+				BLE.disconnect(BLE.connection_handle);
 			}
 			else
 			{
 				delay(1000);
 			}
 			
-			// Wait 59 secondes (1minute for the entire function)
+			// Wait 58 secondes (1minute for the entire function)
 			delay(58000);
 		}
 	}

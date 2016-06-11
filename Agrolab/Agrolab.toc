@@ -3,6 +3,10 @@
 \contentsline {section}{\numberline {2}Communication Bluetooth}{4}{section.2}
 \contentsline {subsection}{\numberline {2.1}Mat\IeC {\'e}riel \IeC {\`a} disposition}{4}{subsection.2.1}
 \contentsline {subsection}{\numberline {2.2}S\IeC {\'e}quence d'acquisition des donn\IeC {\'e}es}{4}{subsection.2.2}
-\contentsline {subsection}{\numberline {2.3}Seuils de g\IeC {\'e}n\IeC {\'e}ration d'alarme}{5}{subsection.2.3}
-\contentsline {section}{\numberline {3}Application client : agroMQTTClient}{5}{section.3}
-\contentsline {section}{\numberline {4}Conclusion}{8}{section.4}
+\contentsline {subsubsection}{\numberline {2.2.1}Caract\IeC {\'e}ristiques utilis\IeC {\'e}es}{5}{subsubsection.2.2.1}
+\contentsline {subsection}{\numberline {2.3}Seuils de g\IeC {\'e}n\IeC {\'e}ration d'alarme}{6}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.4}Attente de 5 minutes}{6}{subsection.2.4}
+\contentsline {section}{\numberline {3}Communication LoRaWAN}{6}{section.3}
+\contentsline {subsection}{\numberline {3.1}Tests de la communication}{6}{subsection.3.1}
+\contentsline {section}{\numberline {4}Application client : agroMQTTClient}{8}{section.4}
+\contentsline {section}{\numberline {5}Conclusion}{10}{section.5}
